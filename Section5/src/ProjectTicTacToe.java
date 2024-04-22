@@ -4,22 +4,29 @@ import java.util.Scanner;
 
 public class ProjectTicTacToe {
     public static void main(String[] args) {
+        runGame();
+    } // end main
+
+    public static void runGame() {
         final String[][] board = new String[3][3];
         final String emptyCharacter = " ";
         String currentPlayer = getInitialPlayer();
         int[] playerInput;
         String winner = null;
+        boolean boardIsFull;
 
         fillEmptyBoard(board, emptyCharacter);
 
         while (true)  {
             printBoard(board);
 
-            do {
-                playerInput = takePlayerInput(currentPlayer);
-            } while (!isValidPlayerInput(board, playerInput, emptyCharacter));
+            do playerInput = takePlayerInput(currentPlayer);
+            while (!isValidPlayerInput(board, playerInput, emptyCharacter));
 
-            addUserInputToBoard(board, currentPlayer, playerInput);
+            addPlayerInputToBoard(board, currentPlayer, playerInput);
+
+            boardIsFull = checkIfBoardIsFull(board, emptyCharacter);
+            if (boardIsFull) break;
 
             winner = getWinner(board, emptyCharacter);
             if (winner != null) break;
@@ -29,10 +36,10 @@ public class ProjectTicTacToe {
         }
 
         printBoard(board);
-        System.out.printf("Congratulations %s, you have won!", winner);
+        if (boardIsFull) System.out.println("This is a draw! You should probably play again ;)");
+        else System.out.printf("Congratulations %s, you have won!", winner);
         System.out.println();
-
-    } // end main
+    } // end runGame
 
     public static void fillEmptyBoard(String[][] board, String emptyCharacter) {
         for (String[] row : board) {
@@ -81,27 +88,45 @@ public class ProjectTicTacToe {
         return playerOptions[random.nextInt(playerOptions.length)];
     } // end getInitialPlayer
 
-    public static void addUserInputToBoard(String[][] board, String currentPlayer, int[] playerInput) {
+    public static void addPlayerInputToBoard(String[][] board, String currentPlayer, int[] playerInput) {
         board[playerInput[0]][playerInput[1]] = currentPlayer;
     } // end addUserInputToBoard
 
     public static String getWinner(String[][] board, String emptyCharacter) {
-        // top row equality
-        if (!board[0][0].equals(emptyCharacter) && board[0][0].equals(board[0][1]) && board[0][0].equals(board[0][2])) return board[0][0];
-        // middle row equality
-        else if (!board[1][0].equals(emptyCharacter) && board[1][0].equals(board[1][1]) && board[1][0].equals(board[1][2])) return board[1][0];
-        // bottom row equality
-        else if (!board[2][0].equals(emptyCharacter) && board[2][0].equals(board[2][1]) && board[2][0].equals(board[2][2])) return board[2][0];
-        // left column equality
-        else if (!board[0][0].equals(emptyCharacter) && board[0][0].equals(board[1][0]) && board[0][0].equals(board[2][0])) return board[0][0];
-        // middle column equality
-        else if (!board[0][1].equals(emptyCharacter) && board[0][1].equals(board[1][1]) && board[0][1].equals(board[2][1])) return board[0][1];
-        // right column equality
-        else if (!board[0][2].equals(emptyCharacter) && board[0][2].equals(board[1][2]) && board[0][2].equals(board[2][2])) return board[0][2];
+        // checking row equality
+        for (String[] row : board) {
+            if (!row[0].equals(emptyCharacter) && row[0].equals(row[1]) && row[0].equals(row[2])) return row[0];
+        }
+
+        // checking column equalities
+        for (int columnId = 0; columnId < board[0].length ; columnId++) {
+            if (!board[0][columnId].equals(emptyCharacter)
+                    && board[0][columnId].equals(board[1][columnId])
+                    && board[0][columnId].equals(board[2][columnId]))
+                return board[0][columnId];
+        }
+
         // checking leading diagonal
-        else if (!board[0][0].equals(emptyCharacter) && board[0][0].equals(board[1][1]) && board[0][0].equals(board[2][2])) return board[0][0];
+        if (!board[0][0].equals(emptyCharacter)
+                && board[0][0].equals(board[1][1])
+                && board[0][0].equals(board[2][2]))
+            return board[0][0];
+
         // other diagonal
-        else if (!board[0][2].equals(emptyCharacter) && board[0][2].equals(board[1][1]) && board[0][2].equals(board[2][0])) return board[0][2];
+        else if (!board[0][2].equals(emptyCharacter)
+                && board[0][2].equals(board[1][1])
+                && board[0][2].equals(board[2][0]))
+            return board[0][2];
+
         return null;
     } // end getWinner
+
+    public static boolean checkIfBoardIsFull(String[][] board, String emptyCharacter) {
+        for (String[] row : board) {
+            for (String value : row) {
+                if (value.equals(emptyCharacter)) return false;
+            }
+        }
+        return true;
+    } // end checkIfBoardIsFull
 }
